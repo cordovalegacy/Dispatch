@@ -1,0 +1,16 @@
+.App {
+  text-align: center;
+  height: 100%;
+}
+
+.height-screen{
+  height: calc(100vh);
+}
+
+ul.overflow-auto::-webkit-scrollbar {
+  display: none;
+}
+
+div.overflow-auto::-webkit-scrollbar{
+  display:none;
+}
