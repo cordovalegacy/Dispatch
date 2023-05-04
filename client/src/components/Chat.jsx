@@ -2,12 +2,25 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios'
 import { io } from 'socket.io-client';
 import { MyContext } from '../App';
+
+// ! GIPHY GIFS
 import { Grid } from '@giphy/react-components'
 import { GiphyFetch } from '@giphy/js-fetch-api'
+// ! GIPHY GIFS
+
+// ! EMOJI MART
+import Picker from '@emoji-mart/react'
+import data from '@emoji-mart/data'
+// ! EMOJI MART
+
 import GIF from '../assets/gif-bg.gif'
-import TRASH from '../assets/icons8-trash.svg'
+
+// ! REACT-ICONS
+import { TbTrashXFilled as TRASH } from 'react-icons/tb'
 import { BsFiletypeGif } from 'react-icons/bs'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
+import { BsEmojiSunglasses } from 'react-icons/bs'
+// ! REACT-ICONS
 
 const Chat = () => {
 
@@ -22,6 +35,12 @@ const Chat = () => {
     const [messages, setMessages] = useState([]); //map these to chat window
     const [socket, setSocket] = useState(null); //socket object (listened for*)
     const [loaded, setLoaded] = useState(false) //conditional gif
+
+    // ****************************************EMOJI MART*******************************************
+    // ! Emojis state and functions
+
+    const [showEmojis, setShowEmojis] = useState(false)
+
 
     // ****************************************GIPHY SDK*******************************************
     // ! giphy init
@@ -221,10 +240,9 @@ const Chat = () => {
 
                                 messages.map((singleMessage, idx) => (
                                     <li key={idx} className={`flex my-2 relative ${singleMessage.sender._id === user._id ? 'flex-row-reverse' : ''}`}>
-                                        <img
-                                            src={TRASH}
+                                        <TRASH
                                             alt="delete icon"
-                                            className={`absolute cursor-pointer top-1 right-2 w-6 ${singleMessage.sender._id != user._id ? 'hidden' : 'hover:opacity-100'} opacity-0 transition-opacity`}
+                                            className={`absolute text-xl text-gray-400 cursor-pointer top-3 right-3 w-6 h-6 ${singleMessage.sender._id != user._id ? 'hidden' : 'hover:text-red-500'} transition duration-300`}
                                             onClick={() => deleteHandler(singleMessage)}
                                         />
                                         <div className={`bg-slate-700 px-20 border py-3 rounded-3xl ${singleMessage.sender._id === user._id ? 'ml-5' : 'mr-5'}`}>
@@ -284,6 +302,22 @@ const Chat = () => {
                                 </div>
                             </div>
                         ) : null}
+                        {showEmojis && loaded ?
+                            <div className={`fixed top-0 left-0 z-50 w-screen h-screen bg-gray-900 bg-opacity-80 flex flex-col items-center justify-center p-10 ${showEmojis ? 'block' : 'display-none'}`}>
+                                <Picker
+                                    data={data}
+                                    onEmojiSelect={(e) => {
+                                        setMessage(message + e.native)
+                                        setShowEmojis(!showEmojis)
+                                    }}
+                                />
+                                <AiOutlineCloseCircle
+                                    className="w-8 h-8 text-white absolute top-8 right-40 cursor-pointer"
+                                    onClick={() => setShowEmojis(!showEmojis)}
+                                />
+                            </div> :
+                            null
+                        }
                         <div ref={chatEndRef} className='chat-window'></div> {/*dummy div*/}
                     </ul>
                 </div>
@@ -297,18 +331,35 @@ const Chat = () => {
                             className="bg-gray-700 text-red-200 rounded-full py-2 px-4 w-full focus:outline-blue-700 placeholder-amber-400 font-bold flex-2"
                             disabled
                         /> :
+                        Object.keys(openConversation).length !== 0 ?
                         <input
                             type="text"
                             placeholder="Enter message"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             className="bg-gray-700 text-amber-200 rounded-full py-2 px-4 w-full focus:outline-blue-700 placeholder-amber-400 font-bold flex-2"
+                        />:
+                        <input
+                            type="text"
+                            placeholder="Open a conversation"
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            className="bg-gray-700 text-amber-200 rounded-full py-2 px-4 w-full focus:outline-blue-700 placeholder-red-500 placeholder:text-center font-bold flex-2 hover:cursor-not-allowed opacity-70"
+                            disabled
                         />
                     }
                     {
-                        showGifs === false && loaded ?
+                        !showEmojis && loaded ?
+                            <BsEmojiSunglasses
+                                className='text-4xl text-white cursor-pointer rounded-3xl hover:text-gray-300'
+                                onClick={() => setShowEmojis(!showEmojis)}
+                            /> :
+                            null
+                    }
+                    {
+                        !showGifs && loaded ?
                             <BsFiletypeGif
-                                className='w-1/6 text-3xl text-white cursor-pointer rounded-3xl'
+                                className='text-5xl text-white cursor-pointer hover:text-gray-300'
                                 onClick={() => setShowGifs(!showGifs)} /> :
                             null
                     }

@@ -12,7 +12,7 @@ module.exports = {
             //if a conversation already exists, return existing conversation
             const existingConversation = await ConversationModel.findOne({users: {$all: users}}).exec()
             if(existingConversation){
-                return res.status(200).json(existingConversation)
+                return res.status(200).json(existingConversation) //existing conversation returned
             }
             const conversation = new ConversationModel({ users }) //creating an instance of conversation schema and passes in the users object to the users field in model
             await conversation.save() //saves the conversation to collection
