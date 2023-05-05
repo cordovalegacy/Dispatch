@@ -12,11 +12,12 @@ export const MyContext = createContext() //export global state
 function App() {
 
   const [user, setUser] = useState({})
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const redirect = useNavigate()
 
   return (
     //using context provider => value is like props..holds what we want to pass (HAS to be value)
-    <MyContext.Provider value={{user, setUser, redirect}}> 
+    <MyContext.Provider value={{user, setUser, redirect, isLoggedIn, setIsLoggedIn}}> 
       <div className="App">
         <Nav />
         <Routes> 

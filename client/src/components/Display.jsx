@@ -5,7 +5,7 @@ import GIF from '../assets/gif-bg-1.gif'
 
 const Display = () => {
 
-    const { user, setUser, redirect } = useContext(MyContext) //destructuring context values (same as props)
+    const { user, setUser, redirect, setIsLoggedIn } = useContext(MyContext) //destructuring context values (same as props)
 
     useEffect(() => {
         axios
@@ -13,9 +13,11 @@ const Display = () => {
             .then((res) => {
                 console.log("Logged In User: (chat) ", res.data)
                 setUser(res.data)
+                setIsLoggedIn(true)
             })
             .catch((err) => {
                 console.log("Something went wrong: (Logged in user) ", err)
+                setIsLoggedIn(false)
                 redirect('/login')
             })
     }, [])

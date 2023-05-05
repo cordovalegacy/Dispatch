@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
+import { MyContext } from '../App';
 import axios from 'axios'
 import { io } from 'socket.io-client';
-import { MyContext } from '../App';
+import GIF from '../assets/gif-bg.gif'
 
 // ! GIPHY GIFS
 import { Grid } from '@giphy/react-components'
@@ -13,18 +14,17 @@ import Picker from '@emoji-mart/react'
 import data from '@emoji-mart/data'
 // ! EMOJI MART
 
-import GIF from '../assets/gif-bg.gif'
-
 // ! REACT-ICONS
 import { TbTrashXFilled as TRASH } from 'react-icons/tb'
 import { BsFiletypeGif } from 'react-icons/bs'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
 import { BsEmojiSunglasses } from 'react-icons/bs'
+import { SlOptions as OPTIONS } from 'react-icons/sl'
 // ! REACT-ICONS
 
 const Chat = () => {
 
-    //listened for* = useEffect dependency array
+    // ! listened for* = useEffect dependency array
     const chatEndRef = useRef(null) //used for dummy div message snap feature
     const { user, setUser, redirect } = useContext(MyContext) //logged in user getter and setter
     const [allUsers, setAllUsers] = useState([]) //used for conditional rendering
@@ -35,6 +35,8 @@ const Chat = () => {
     const [messages, setMessages] = useState([]); //map these to chat window
     const [socket, setSocket] = useState(null); //socket object (listened for*)
     const [loaded, setLoaded] = useState(false) //conditional gif
+    const [options, setOptions] = useState(null)
+    const [isOptionsOpen, setIsOptionsOpen] = useState(false)
 
     // ****************************************EMOJI MART*******************************************
     // ! Emojis state and functions
@@ -45,7 +47,7 @@ const Chat = () => {
     // ****************************************GIPHY SDK*******************************************
     // ! giphy init
 
-    const gf = new GiphyFetch("D4w43tSgcv54X84AJ44UtMkrTX45oS2x") //allows us access to giphy api with api key from env file
+    const fetchGif = new GiphyFetch("D4w43tSgcv54X84AJ44UtMkrTX45oS2x") //allows us access to giphy api with api key from env file
     const [showGifs, setShowGifs] = useState(false) //toggle gifs with gif button on search bar
     const [searchQuery, setSearchQuery] = useState(""); //gif search
 
@@ -54,9 +56,9 @@ const Chat = () => {
 
     const fetchGifs = (offset, number) => {
         if (searchQuery) {
-            return gf.search(searchQuery, { offset, limit: 20 });
+            return fetchGif.search(searchQuery, { offset, limit: 20 });
         } else {
-            return gf.trending({ offset, limit: 20 });
+            return fetchGif.trending({ offset, limit: 20 });
         }
     }; //api search params
 
@@ -153,7 +155,7 @@ const Chat = () => {
     }, [])
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e) => { //handles saving message to DB AND* emitting socket
         e.preventDefault();
         const newMessage = { conversationId: openConversation._id, sender: user._id, content: message }
         axios
@@ -221,6 +223,14 @@ const Chat = () => {
         fetchGiphy(); // calls the function each time the dependency array triggers
     }, [searchQuery]);
 
+    //**********************************************Options Tab********************************************
+
+
+    const optionsHandler = (options) => {
+        setOptions(options._id)
+        setIsOptionsOpen(!isOptionsOpen)
+    }
+
     //**********************************************Begin JSX********************************************
 
 
@@ -238,13 +248,29 @@ const Chat = () => {
                                     <p className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">Start a new chat!</p>
                                 </div> :
 
-                                messages.map((singleMessage, idx) => (
-                                    <li key={idx} className={`flex my-2 relative ${singleMessage.sender._id === user._id ? 'flex-row-reverse' : ''}`}>
-                                        <TRASH
-                                            alt="delete icon"
-                                            className={`absolute text-xl text-gray-400 cursor-pointer top-3 right-3 w-6 h-6 ${singleMessage.sender._id != user._id ? 'hidden' : 'hover:text-red-500'} transition duration-300`}
-                                            onClick={() => deleteHandler(singleMessage)}
-                                        />
+                                messages.map((singleMessage) => (
+                                    <li key={singleMessage._id} className={`flex my-2 relative ${singleMessage.sender._id === user._id ? 'flex-row-reverse' : ''}`}>
+                                        <div className="relative"> {/* Add a parent container with relative positioning */}
+                                            <OPTIONS
+                                                className={`text-xl text-gray-400 cursor-pointer transition duration-300 hover:text-gray-200 ${singleMessage.sender._id != user._id ? 'absolute top-3 left-3' : 'relative top-3 right-16'}`} // Add absolute positioning to the icon, and adjust the top and left properties to position it where you want it
+                                                onClick={() => optionsHandler(singleMessage)}
+                                            />
+                                            {/* Conditionally render the options popup */}
+                                            {options === singleMessage._id && isOptionsOpen && (
+                                                <div className={`p-1 absolute top-8 mt-2 text-center ${singleMessage.sender._id !== user._id ? 'left-2' : 'right-8'}`}>
+                                                    <div className='flex items-center justify-between w-12'>
+                                                        <p className='text-blue-300 text-center cursor-pointer hover:text-gray-200' onClick={() => console.log('Option 1 clicked')}><BsEmojiSunglasses /></p>
+                                                        <p className='text-blue-400 text-center cursor-pointer hover:text-gray-200' onClick={() => console.log('Option 2 clicked')}>Edit</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="relative">
+                                            <TRASH
+                                                className={`text-xl text-gray-400 cursor-pointer transition duration-300 absolute top-3 right-3 ${singleMessage.sender._id != user._id ? 'hidden' : 'hover:text-red-500'} transition duration-300`}
+                                                onClick={() => deleteHandler(singleMessage)}
+                                            />
+                                        </div>
                                         <div className={`bg-slate-700 px-20 border py-3 rounded-3xl ${singleMessage.sender._id === user._id ? 'ml-5' : 'mr-5'}`}>
                                             <div className="flex flex-col">
                                                 <div className="text-gray-100 font-bold">{singleMessage.sender.firstName}</div>
@@ -266,6 +292,7 @@ const Chat = () => {
                                         </div>
                                     </li>
                                 ))
+
                         }
 
 
@@ -302,6 +329,8 @@ const Chat = () => {
                                 </div>
                             </div>
                         ) : null}
+
+
                         {showEmojis && loaded ?
                             <div className={`fixed top-0 left-0 z-50 w-screen h-screen bg-gray-900 bg-opacity-80 flex flex-col items-center justify-center p-10 ${showEmojis ? 'block' : 'display-none'}`}>
                                 <Picker
@@ -318,10 +347,17 @@ const Chat = () => {
                             </div> :
                             null
                         }
-                        <div ref={chatEndRef} className='chat-window'></div> {/*dummy div*/}
+
+
+                        <div ref={chatEndRef} className='chat-window'></div> {/*dummy div..used for snap feature*/}
+
+
                     </ul>
                 </div>
+
                 <form onSubmit={handleSubmit} className='max-h-20 min-h-20 flex items-center gap-5 bg-gray-800 rounded-lg p-2 mb-6'>
+
+
                     {message.startsWith('http') ? /*if url then disable input: otherwise enable it*/
                         <input
                             type="text"
@@ -332,22 +368,24 @@ const Chat = () => {
                             disabled
                         /> :
                         Object.keys(openConversation).length !== 0 ?
-                        <input
-                            type="text"
-                            placeholder="Enter message"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            className="bg-gray-700 text-amber-200 rounded-full py-2 px-4 w-full focus:outline-blue-700 placeholder-amber-400 font-bold flex-2"
-                        />:
-                        <input
-                            type="text"
-                            placeholder="Open a conversation"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            className="bg-gray-700 text-amber-200 rounded-full py-2 px-4 w-full focus:outline-blue-700 placeholder-red-500 placeholder:text-center font-bold flex-2 hover:cursor-not-allowed opacity-70"
-                            disabled
-                        />
+                            <input
+                                placeholder={openConversation.users.length > 2 ? "Send a message to the group!" : `Message @${openConversation.users[0].firstName}`}
+                                type="text"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                className="bg-gray-700 text-amber-200 rounded-full py-2 px-4 w-full focus:outline-blue-700 placeholder-amber-400 font-bold flex-2"
+                            /> :
+                            <input
+                                type="text"
+                                placeholder="Open a conversation"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                className="bg-gray-700 text-amber-200 rounded-full py-2 px-4 w-full focus:outline-blue-700 placeholder-red-500 placeholder:text-center font-bold flex-2 hover:cursor-not-allowed opacity-70"
+                                disabled
+                            />
                     }
+
+
                     {
                         !showEmojis && loaded ?
                             <BsEmojiSunglasses
@@ -356,6 +394,8 @@ const Chat = () => {
                             /> :
                             null
                     }
+
+
                     {
                         !showGifs && loaded ?
                             <BsFiletypeGif
@@ -363,6 +403,8 @@ const Chat = () => {
                                 onClick={() => setShowGifs(!showGifs)} /> :
                             null
                     }
+
+
                     <button
                         type="submit"
                         className={`bg-blue-600 hover:bg-blue-500 text-amber-400 font-bold rounded-full py-2 px-4 ml-2 flex-1 ${loaded ? '' : 'opacity-50 cursor-not-allowed'}`}
@@ -372,8 +414,10 @@ const Chat = () => {
                     </button>
                 </form>
             </div>
+
             <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-100 max-h-100 min-h-100 overflow-auto'>
                 <h2 className='text-amber-400 font-bold'>Friends</h2>
+
                 {
                     allUsers.map((eachUser) => (
                         <div
@@ -385,6 +429,7 @@ const Chat = () => {
                         </div>
                     ))
                 }
+
             </div>
         </div>
     );
