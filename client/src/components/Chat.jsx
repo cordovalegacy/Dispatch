@@ -226,9 +226,9 @@ const Chat = () => {
     //**********************************************Options Tab********************************************
 
 
-    const optionsHandler = (options) => {
-        setOptions(options._id)
-        setIsOptionsOpen(!isOptionsOpen)
+    const optionsHandler = (options) => { //opens the options tab for a specific user*
+        setOptions(options._id) //specific user
+        setIsOptionsOpen(!isOptionsOpen) //openHandler
     }
 
     //**********************************************Begin JSX********************************************
@@ -415,7 +415,7 @@ const Chat = () => {
                 </form>
             </div>
 
-            <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-100 max-h-100 min-h-100 overflow-auto'>
+            <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-100 max-h-100 min-h-100 overflow-auto'> 
                 <h2 className='text-amber-400 font-bold'>Friends</h2>
 
                 {
