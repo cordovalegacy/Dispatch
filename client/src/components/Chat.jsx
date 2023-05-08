@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { MyContext } from '../App';
+import React, { useState, useEffect, useContext, useRef } from 'react'
+import { MyContext } from '../App'
 import axios from 'axios'
-import { io } from 'socket.io-client';
+import { io } from 'socket.io-client'
 import GIF from '../assets/gif-bg.gif'
+import DragDrop from './Drag_Drop'
 
 // ! GIPHY GIFS
 import { Grid } from '@giphy/react-components'
@@ -37,6 +38,7 @@ const Chat = () => {
     const [loaded, setLoaded] = useState(false) //conditional gif
     const [options, setOptions] = useState(null)
     const [isOptionsOpen, setIsOptionsOpen] = useState(false)
+    const [board, setBoard] = useState([])
 
     // ****************************************EMOJI MART*******************************************
     // ! Emojis state and functions
@@ -417,19 +419,7 @@ const Chat = () => {
 
             <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-100 max-h-100 min-h-100 overflow-auto'> 
                 <h2 className='text-amber-400 font-bold'>Friends</h2>
-
-                {
-                    allUsers.map((eachUser) => (
-                        <div
-                            key={eachUser._id}
-                            onClick={() => handleCreateConversation([user._id, eachUser._id])}
-                            className='flex justify-between items-center text-white gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer'>
-                            <h3>{eachUser.firstName} {eachUser.lastName}</h3>
-                            <button className='text-lg font-extrabold text-blue-500 cur'>+</button>
-                        </div>
-                    ))
-                }
-
+                <DragDrop allUsers={allUsers} handleCreateConversation={handleCreateConversation} user={user} board={board} setBoard={setBoard}/>
             </div>
         </div>
     );
