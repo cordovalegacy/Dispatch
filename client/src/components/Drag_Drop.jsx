@@ -18,7 +18,7 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
         }),
     }));
 
-    const addDivToBoard = (id) => {
+    const addDivToBoard = (id) => { //adds a new div to the board by filtering the one from the friends list and then mapping to board
         const newBoard = board.filter((item) => id !== item.id);
         setBoard((board) => [...board, newBoard[0]]);
         console.log(id);
