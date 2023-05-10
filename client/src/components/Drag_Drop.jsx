@@ -9,7 +9,6 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
         }),
     }));
 
-
     const [{ isOver }, drop] = useDrop(() => ({
         accept: "div",
         drop: (item) => addDivToBoard(item.id),
@@ -18,10 +17,9 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
         }),
     }));
 
-    const addDivToBoard = (id) => { //adds a new div to the board by filtering the one from the friends list and then mapping to board
+    const addDivToBoard = (id) => {
         const newBoard = board.filter((item) => id !== item.id);
-        setBoard((board) => [...board, newBoard[0]]);
-        console.log(id);
+        setBoard([...newBoard, { id: id }]);
     };
 
     return (
@@ -31,19 +29,26 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
                     <div
                         key={eachUser._id}
                         ref={drag}
-                        onClick={() => handleCreateConversation([user._id, eachUser._id])}
-                        className={`flex justify-between items-center text-white gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer ${isDragging ? "bg-amber-400" : "bg-inherit"
+                        className={`flex justify-between items-center text-white gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer ${isDragging ? "bg-amber-400 cursor-grabbing" : "bg-inherit cursor-grab"
                             }`}
                     >
-                        <h3>{eachUser.firstName} {eachUser.lastName}</h3>
-                        <button className='text-lg font-extrabold text-blue-500 cur'>+</button>
+                        <h3>
+                            {eachUser.firstName} {eachUser.lastName}
+                        </h3>
+                        <button
+                            className="text-lg font-extrabold text-blue-500 cur"
+                            onClick={() => handleCreateConversation([user._id, eachUser._id])}
+                        >+</button>
                     </div>
                 ))}
             </>
             <div ref={drop} className="bg-amber-600">
                 {board.map((eachUser) => (
-                    <div key={eachUser._id}>
-                        <h3>{eachUser.firstName} {eachUser.lastName}</h3>
+                    <div key={eachUser.id}>
+                        <h3>
+                            {allUsers.find((u) => u._id === eachUser.id).firstName}{" "}
+                            {allUsers.find((u) => u._id === eachUser.id).lastName}
+                        </h3>
                     </div>
                 ))}
             </div>
@@ -51,4 +56,4 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
     );
 };
 
-export default DragDrop;
+export default DragDrop
