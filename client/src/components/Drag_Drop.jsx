@@ -1,14 +1,31 @@
+import { useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard }) => {
 
-    const [{ isDragging }, drag] = useDrag(() => ({ //dragging functionality
-        type: "div", //makes this function reusable for the same element type
-        item: { id: user._id }, //send data about this object to dropping function
-        collect: (monitor) => ({ //collects information about dragged element
-            isDragging: !!monitor.isDragging(), //returns boolean if dragging
+    // const [{ isDragging }, drag] = useDrag(() => ({ //dragging functionality
+    //     type: "div", //makes this function reusable for the same element type
+    //     item: { id: user._id }, //send data about this object to dropping function
+    //     collect: (monitor) => ({ //collects information about dragged element
+    //         isDragging: !!monitor.isDragging(), //returns boolean if dragging
+    //     }),
+    // }));
+
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: "div",
+        item: { id: user._id },
+        collect: (monitor) => ({
+            isDragging: !!monitor.isDragging(),
+            getItem: monitor.getItem, // add this line
         }),
     }));
+    
+
+    useEffect(() => {
+        if (isDragging === true) {
+            console.log("isDragging: ", drag.getItem())
+        }
+    }, [isDragging])
 
     const [{ isOver }, drop] = useDrop(() => ({ //dropping functionality
         accept: "div", //matches with type key from useDrag function
@@ -20,6 +37,7 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
 
     const addDivToBoard = (id) => { //add draggable element to board
         const newBoard = board.filter((item) => id !== item.id);
+        console.log(newBoard, id, board)
         setBoard([...newBoard, { id: id }]);
     };
 
@@ -43,15 +61,18 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
                     </div>
                 ))}
             </>
-            <div ref={drop} className="bg-amber-600">
-                {board.map((eachUser) => (
-                    <div key={eachUser.id}>
-                        <h3>
-                            {allUsers.find((user) => user._id === eachUser.id).firstName}{" "}
-                            {allUsers.find((user) => user._id === eachUser.id).lastName}
-                        </h3>
-                    </div>
-                ))}
+            <div
+                ref={drop}
+                className="bg-amber-600 border border-white w-40 h-3/4 mx-auto">
+                {
+                    board.map((eachUser) => (
+                        <div
+                            key={eachUser.id}>
+                            <h3>
+                                {eachUser.firstName}
+                            </h3>
+                        </div>
+                    ))}
             </div>
         </div>
     );
