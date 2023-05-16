@@ -63,7 +63,7 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
             </>
             <div
                 ref={drop}
-                className="bg-amber-300 border border-white w-40 h-3/4 mx-auto">
+                className="bg-amber-400 border border-white w-40 h-3/4 mx-auto">
                 {
                     board.map((eachUser) => (
                         <div
