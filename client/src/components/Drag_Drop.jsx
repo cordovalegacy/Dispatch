@@ -1,44 +1,39 @@
-import { useEffect } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard }) => {
-
-    // const [{ isDragging }, drag] = useDrag(() => ({ //dragging functionality
-    //     type: "div", //makes this function reusable for the same element type
-    //     item: { id: user._id }, //send data about this object to dropping function
-    //     collect: (monitor) => ({ //collects information about dragged element
-    //         isDragging: !!monitor.isDragging(), //returns boolean if dragging
-    //     }),
-    // }));
+    console.log("Board", board);
 
     const [{ isDragging }, drag] = useDrag(() => ({
         type: "div",
-        item: { id: user._id },
+        item: (eachUser, monitor) => {
+            console.log("Drag Start:", eachUser); // Log drag start
+            return {
+                id: eachUser.id,
+                firstName: eachUser.firstName,
+                lastName: eachUser.lastName
+            };
+        },
         collect: (monitor) => ({
-            isDragging: !!monitor.isDragging(),
-            getItem: monitor.getItem, // add this line
-        }),
-    }));
-    
-
-    useEffect(() => {
-        if (isDragging === true) {
-            console.log("isDragging: ", drag.getItem())
-        }
-    }, [isDragging])
-
-    const [{ isOver }, drop] = useDrop(() => ({ //dropping functionality
-        accept: "div", //matches with type key from useDrag function
-        drop: (item) => addDivToBoard(item.id), //sends mapping info from drag function to the board
-        collect: (monitor) => ({
-            isOver: !!monitor.isOver(),
-        }),
+            isDragging: !!monitor.isDragging()
+        })
     }));
 
-    const addDivToBoard = (id) => { //add draggable element to board
-        const newBoard = board.filter((item) => id !== item.id);
-        console.log(newBoard, id, board)
-        setBoard([...newBoard, { id: id }]);
+    const [{ isOver }, drop] = useDrop(() => ({
+        accept: "div",
+        drop: (item, monitor) => {
+            console.log("Drop:", item, monitor); // Log drop event
+            addDivToBoard(item);
+        },
+        collect: (monitor) => ({
+            isOver: !!monitor.isOver()
+        })
+    }));
+
+    const addDivToBoard = (item) => {
+        const { id, firstName, lastName } = item;
+
+        const newBoard = board.filter((user) => user.id !== id);
+        setBoard([...newBoard, { id, firstName, lastName }]);
     };
 
     return (
@@ -48,34 +43,39 @@ const DragDrop = ({ allUsers, handleCreateConversation, user, board, setBoard })
                     <div
                         key={eachUser._id}
                         ref={drag}
-                        className={`flex justify-between items-center text-white gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer ${isDragging ? "bg-amber-400 cursor-grabbing" : "bg-inherit cursor-grab"
-                            }`}
+                        onClick={() => {
+                            drag(eachUser);
+                        }}
+                        className={`flex justify-between items-center text-white gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer ${isDragging ? "bg-amber-400 cursor-grabbing" : "bg-inherit cursor-grab"}`}
                     >
                         <h3>
                             {eachUser.firstName} {eachUser.lastName}
                         </h3>
                         <button
-                            className="text-lg font-extrabold text-blue-500 cur"
+                            className="text-lg font-extrabold text-blue-500 cursor-pointer"
                             onClick={() => handleCreateConversation([user._id, eachUser._id])}
-                        >+</button>
+                        >
+                            +
+                        </button>
                     </div>
                 ))}
             </>
-            <div
-                ref={drop}
-                className="bg-amber-400 border border-white w-40 h-3/4 mx-auto">
-                {
-                    board.map((eachUser) => (
-                        <div
-                            key={eachUser.id}>
-                            <h3>
-                                {eachUser.firstName}
-                            </h3>
-                        </div>
-                    ))}
+            <hr />
+            <div ref={drop} className="bg-stone-800 rounded-lg w-64 h-2/3 mx-auto mt-4 hover:outline hover:outline-amber-500">
+                <h5 className="text-gray-200">Start a group chat</h5>
+                {board.map((eachUser) => (
+                    <div
+                        key={eachUser.id}
+                        className="flex justify-between items-center text-black hover:text-amber-300 gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer"
+                    >
+                        <h3>
+                            {eachUser.firstName} {eachUser.lastName}
+                        </h3>
+                    </div>
+                ))}
             </div>
         </div>
     );
 };
 
-export default DragDrop
+export default DragDrop;
