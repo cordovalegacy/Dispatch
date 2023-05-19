@@ -3,7 +3,7 @@ import { MyContext } from '../App'
 import axios from 'axios'
 import { io } from 'socket.io-client'
 import GIF from '../assets/gif-bg.gif'
-import DragDrop from './Drag_Drop'
+import GroupChat from './GroupChat'
 
 // ! GIPHY GIFS
 import { Grid } from '@giphy/react-components'
@@ -33,12 +33,13 @@ const Chat = () => {
     const [openConversation, setOpenConversation] = useState({}) //fetchConvo gets conversation, set to that convo
     const [conversationId, setConversationId] = useState("") //params to send through fetchConvo (listened for*)
     const [message, setMessage] = useState("") //tracking input change
-    const [messages, setMessages] = useState([]); //map these to chat window
-    const [socket, setSocket] = useState(null); //socket object (listened for*)
+    const [messages, setMessages] = useState([]) //map these to chat window
+    const [socket, setSocket] = useState(null) //socket object (listened for*)
     const [loaded, setLoaded] = useState(false) //conditional gif
-    const [options, setOptions] = useState(null)
-    const [isOptionsOpen, setIsOptionsOpen] = useState(false)
-    const [board, setBoard] = useState([])
+    const [options, setOptions] = useState(null) //this is state to track eachUsers chat bubble so we can open options on THAT bubble and not all of the bubbles
+    const [isOptionsOpen, setIsOptionsOpen] = useState(false) //this is toggle state for options in chat bubbles
+    const [boardList, setBoardList] = useState([]) //this is the group chat window data
+
 
     // ****************************************EMOJI MART*******************************************
     // ! Emojis state and functions
@@ -241,11 +242,11 @@ const Chat = () => {
             <div className="w-3/5 mx-10 rounded-lg">
                 <div className="bg-gray-800 rounded-lg px-10 py-10 my-6">
                     <h1 className="text-blue-500 px-40 w-full mb-2 p-1 font-extrabold text-lg border-b">Chat</h1>
-                    <ul className="overflow-auto max-h-60 min-h-60 w-full">
+                    <ul className="overflow-auto h-60 w-full">
 
                         {
                             !loaded ?
-                                <div className="relative">
+                                <div className="relative mt-6">
                                     <img src={GIF} alt='gif' className='w-1/3 m-auto' />
                                     <p className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">Start a new chat!</p>
                                 </div> :
@@ -416,10 +417,34 @@ const Chat = () => {
                     </button>
                 </form>
             </div>
-
-            <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-100 max-h-100 min-h-100 overflow-auto'> 
-                <h2 className='text-amber-400 font-bold'>Friends</h2>
-                <DragDrop allUsers={allUsers} handleCreateConversation={handleCreateConversation} user={user} board={board} setBoard={setBoard}/>
+            <div>
+                <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-64 overflow-auto'>
+                    <h2 className='text-amber-400 font-bold'>Friends</h2>
+                    <div className=" max-h-80 h-80 overflow-auto">
+                        {allUsers.map((eachUser) => (
+                            <div
+                                key={eachUser._id}
+                                onClick={() => {
+                                    if (!boardList.some((user) => user._id === eachUser._id)) {
+                                        setBoardList([...boardList, eachUser]);
+                                    }
+                                }}
+                                className={`flex justify-between items-center text-white gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer`}
+                            >
+                                <h3>
+                                    {eachUser.firstName} {eachUser.lastName}
+                                </h3>
+                                <button
+                                    className="text-lg font-extrabold text-blue-500 cursor-pointer"
+                                    onClick={() => handleCreateConversation([user._id, eachUser._id])}
+                                >
+                                    +
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <GroupChat handleCreateConversation={handleCreateConversation} user={user} boardList={boardList} setBoardList={setBoardList} />
             </div>
         </div>
     );
