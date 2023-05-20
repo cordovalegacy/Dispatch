@@ -1,0 +1,52 @@
+Sprints for Dispatch:
+
+Friends:
+
+Backend:
+1. Create a friends model to relate users to users
+2. Create a friends controller that contains logic on how to:
+-add friends to users
+-remove friends from users
+3. Create a friends route for each function
+
+Frontend:
+1. Create slide arrow on current friends window in Chat.jsx
+2. onClick of that slide arrow, slide into a All Users window
+3. Add a message bubble react icon for handleCreateConversation
+4. Modify + react icon to add new friends
+5. On friends list, add a - react icon to remove friends from friends list
+6. On All Users window, add a search bar to find any user by name
+7. Add onClick feature that adds snaps to that user in the list (dummy div?)
+
+Conversations:
+1. Similar to Friends, add a slide arrow to slide to conversations window
+2. Map those conversations into eachConversation bubbles
+3. Upon clicking those bubbles, open that conversation (should be able to reuse handleCreateConversation) function
+
+Chat:
+1. Add reactions to chat bubbles
+2. Add edit functionality to only logged in user's message
+3. Add max width on chat bubbles (60% width)
+4. Remove edit button on otherUsers (non logged in) chat bubbles
+
+General:
+1. Create a Logo and display it on the nav bar
+2. Modularize the code with RRR
+3. Make a mobile responsive version
+
+VSE related: 
+
+Classrooms:
+1. Create a classroom link on the nav bar
+2. Create a classroom component
+3. Create tables (chat rooms)
+
+Video Chat:
+1. Create a video chat component
+2. Write video chat logic with WebRTC
+3. Add video chat react icon to each friend in friends list
+4. onClick of that video chat icon, open a chat room
+5. Create a table model, controller, and route file
+6. If user clicks on join table, push them into room
+7. If user clicks on leave table, pop them out of the room
+8. Have each table have a hard coded ID
