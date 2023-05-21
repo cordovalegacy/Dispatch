@@ -4,6 +4,8 @@ import axios from 'axios'
 import { io } from 'socket.io-client'
 import GIF from '../assets/gif-bg.gif'
 import GroupChat from './GroupChat'
+import FriendList from './FriendList'
+import UserList from './UserList'
 
 // ! GIPHY GIFS
 import { Grid } from '@giphy/react-components'
@@ -21,6 +23,8 @@ import { BsFiletypeGif } from 'react-icons/bs'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
 import { BsEmojiSunglasses } from 'react-icons/bs'
 import { SlOptions as OPTIONS } from 'react-icons/sl'
+import { BiRightArrow as RightArrow } from 'react-icons/bi'
+import { BiLeftArrow as LeftArrow } from 'react-icons/bi'
 // ! REACT-ICONS
 
 const Chat = () => {
@@ -39,6 +43,8 @@ const Chat = () => {
     const [options, setOptions] = useState(null) //this is state to track eachUsers chat bubble so we can open options on THAT bubble and not all of the bubbles
     const [isOptionsOpen, setIsOptionsOpen] = useState(false) //this is toggle state for options in chat bubbles
     const [boardList, setBoardList] = useState([]) //this is the group chat window data
+    const [allFriends, setAllFriends] = useState([]) //this is the state that will hold each friend the logged in user has
+    const [slideIndex, setSlideIndex] = useState(0)
 
 
     // ****************************************EMOJI MART*******************************************
@@ -418,30 +424,40 @@ const Chat = () => {
                 </form>
             </div>
             <div>
-                <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-64 overflow-auto'>
-                    <h2 className='text-amber-400 font-bold'>Friends</h2>
+                <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-64 overflow-auto relative'>
                     <div className=" max-h-80 h-80 overflow-auto">
-                        {allUsers.map((eachUser) => (
-                            <div
-                                key={eachUser._id}
-                                onClick={() => {
-                                    if (!boardList.some((user) => user._id === eachUser._id)) {
-                                        setBoardList([...boardList, eachUser]);
-                                    }
-                                }}
-                                className={`flex justify-between items-center text-white gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer`}
-                            >
-                                <h3>
-                                    {eachUser.firstName} {eachUser.lastName}
-                                </h3>
-                                <button
-                                    className="text-lg font-extrabold text-blue-500 cursor-pointer"
-                                    onClick={() => handleCreateConversation([user._id, eachUser._id])}
-                                >
-                                    +
-                                </button>
-                            </div>
-                        ))}
+                        <RightArrow
+                            className='text-blue-500 hover:text-amber-500 absolute top-1/2 right-0'
+                            onClick={() => slideIndex < 1 ? setSlideIndex(prevState => prevState + 1) : null}
+                        />
+                        <LeftArrow
+                            className='text-blue-500 hover:text-amber-500 absolute top-1/2 left-0'
+                            onClick={() => slideIndex > 0 ? setSlideIndex(prevState => prevState - 1) : null}
+                        />
+                        <div className="transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
+                            {
+                                slideIndex == 0 ?
+                                    <UserList
+                                        boardList={boardList}
+                                        setBoardList={setBoardList}
+                                        handleCreateConversation={handleCreateConversation}
+                                        allUsers={allUsers}
+                                        user={user}
+                                    />
+                                    : null
+                            }
+                            {
+                                slideIndex == 1 ?
+                                    <FriendList
+                                        boardList={boardList}
+                                        setBoardList={setBoardList}
+                                        handleCreateConversation={handleCreateConversation}
+                                        allFriends={allFriends}
+                                        user={user}
+                                    />
+                                    : null
+                            }
+                        </div>
                     </div>
                 </div>
                 <GroupChat handleCreateConversation={handleCreateConversation} user={user} boardList={boardList} setBoardList={setBoardList} />
