@@ -5,7 +5,7 @@ module.exports = {
     friendRequest: async (req, res) => {
         try{
             const { users } = req.body
-            const existingFriendship = await new FriendshipModel.findOne({friendships: {$all: users}}).exec()
+            const existingFriendship = await FriendshipModel.findOne({friendships: {$all: users}}).exec()
             if(existingFriendship){
                 return res.status(200).json(existingFriendship)
             }
@@ -20,7 +20,8 @@ module.exports = {
 
     getAllFriends: async (req, res) => {
         try{
-            const currentUser = req.user._id
+            const currentUser = req.params.id
+            console.log("current user", req.params.id)
             const allFriends = await FriendshipModel.find({friendships: currentUser}).populate('friendships', 'email firstName lastName _id')
             return res.status(200).json(allFriends)
         }

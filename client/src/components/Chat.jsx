@@ -116,28 +116,32 @@ const Chat = () => {
     }, [])
 
     useEffect(() => {
+        const id = user._id;
         axios
-        .get('http://localhost:8000/api/friendsList')
-        .then((res) => {
-            console.log("All Friends of Logged In User: ", res.data)
-            setAllFriends(res.data)
-        })
-        .catch((err) => {
-            console.log("Something went wrong retrieving friends: ", err)
-        })
-    }, [])
+            .get(`http://localhost:8000/api/friendsList/${id}`, { withCredentials: true })
+            .then((res) => {
+                console.log("All Friends of Logged In User: ", res.data);
+                const friendsArray = res.data[0].friendships;
+                const filteredFriends = friendsArray.filter((friend) => friend._id !== user._id);
+                setAllFriends(filteredFriends);
+            })
+            .catch((err) => {
+                console.log("Something went wrong retrieving friends: ", err);
+            });
+    }, [user._id]);
+
 
     // ****************************************Two Above Get All*******************************************
 
     const friendRequestHandler = (userIds) => {
         axios
-        .post('http://localhost:8000/api/friendRequest', {users: userIds}, {withCredentials: true})
-        .then((res) => {
-            console.log("New Friendship: ", res.data)
-        })
-        .catch((err) => {
-            console.log("Something went wrong creating friendship: ", err)
-        })
+            .post('http://localhost:8000/api/friendRequest', { users: userIds }, { withCredentials: true })
+            .then((res) => {
+                console.log("New Friendship: ", res.data)
+            })
+            .catch((err) => {
+                console.log("Something went wrong creating friendship: ", err)
+            })
     }
 
     // ****************************************Two Below Work Together*************************************
