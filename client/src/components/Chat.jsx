@@ -25,6 +25,8 @@ import { BsEmojiSunglasses } from 'react-icons/bs'
 import { SlOptions as OPTIONS } from 'react-icons/sl'
 import { BiRightArrow as RightArrow } from 'react-icons/bi'
 import { BiLeftArrow as LeftArrow } from 'react-icons/bi'
+import { FaUserFriends as AddFriend } from 'react-icons/fa'
+import { BiMessageDetail as NewMessage } from 'react-icons/bi'
 // ! REACT-ICONS
 
 const Chat = () => {
@@ -113,7 +115,30 @@ const Chat = () => {
             })
     }, [])
 
+    useEffect(() => {
+        axios
+        .get('http://localhost:8000/api/friendsList')
+        .then((res) => {
+            console.log("All Friends of Logged In User: ", res.data)
+            setAllFriends(res.data)
+        })
+        .catch((err) => {
+            console.log("Something went wrong retrieving friends: ", err)
+        })
+    }, [])
+
     // ****************************************Two Above Get All*******************************************
+
+    const friendRequestHandler = (userIds) => {
+        axios
+        .post('http://localhost:8000/api/friendRequest', {users: userIds}, {withCredentials: true})
+        .then((res) => {
+            console.log("New Friendship: ", res.data)
+        })
+        .catch((err) => {
+            console.log("Something went wrong creating friendship: ", err)
+        })
+    }
 
     // ****************************************Two Below Work Together*************************************
     // ! creating and fetching conversations from DB    
@@ -436,18 +461,23 @@ const Chat = () => {
                         />
                         <div className="transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
                             {
-                                slideIndex == 0 ?
+                                slideIndex === 0 ?
                                     <UserList
                                         boardList={boardList}
                                         setBoardList={setBoardList}
                                         handleCreateConversation={handleCreateConversation}
                                         allUsers={allUsers}
                                         user={user}
+                                        AddFriend={AddFriend}
+                                        NewMessage={NewMessage}
+                                        friendRequestHandler={friendRequestHandler}
                                     />
                                     : null
                             }
+                        </div>
+                        <div className="transition-transform duration-300 ease-in-out" style={{ transform: `translateX(${100 - slideIndex * 100}%)` }}>
                             {
-                                slideIndex == 1 ?
+                                slideIndex === 1 ?
                                     <FriendList
                                         boardList={boardList}
                                         setBoardList={setBoardList}
