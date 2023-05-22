@@ -116,19 +116,22 @@ const Chat = () => {
     }, [])
 
     useEffect(() => {
-        const id = user._id;
+        const id = user._id //user id sent to routes on backend
         axios
-            .get(`http://localhost:8000/api/friendsList/${id}`, { withCredentials: true })
+            .get(`http://localhost:8000/api/friendsList/${id}`, { withCredentials: true }) //grabbing logged user's friends
             .then((res) => {
-                console.log("All Friends of Logged In User: ", res.data);
-                const friendsArray = res.data[0].friendships;
-                const filteredFriends = friendsArray.filter((friend) => friend._id !== user._id);
-                setAllFriends(filteredFriends);
+                console.log("All Friends of Logged In User: ", res.data) //all records of logged in user
+                const friendshipsArray = res.data.flatMap((eachFriend) => eachFriend.friendships) //flatMap grabs all objects in each friendship array
+                console.log("Friendship Array: ", friendshipsArray) //SEPARATES all users (flattens) [{loggedUsersInfo}, {friendsInfo}, {loggedUsersInfo}, {anotherFriendsInfo}]
+                const filteredFriends = friendshipsArray.filter((friend) => friend._id !== user._id) //filters out {loggedUsersInfo}
+                console.log("filtered friends: ", filteredFriends) //all friendships excluding the loggedUser (see console.log to understand)
+                setAllFriends(filteredFriends) //accurate friendlist
             })
             .catch((err) => {
                 console.log("Something went wrong retrieving friends: ", err);
             });
     }, [user._id]);
+
 
 
     // ****************************************Two Above Get All*******************************************
@@ -488,6 +491,7 @@ const Chat = () => {
                                         handleCreateConversation={handleCreateConversation}
                                         allFriends={allFriends}
                                         user={user}
+                                        NewMessage={NewMessage}
                                     />
                                     : null
                             }
