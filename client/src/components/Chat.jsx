@@ -35,7 +35,8 @@ const Chat = () => {
     const chatEndRef = useRef(null) //used for dummy div message snap feature
     const { user, setUser, redirect } = useContext(MyContext) //logged in user getter and setter
     const [allUsers, setAllUsers] = useState([]) //used for conditional rendering
-    const [allConversations, setAllConversations] = useState([]) //not used yet, just for console data
+    const [allConversations, setAllConversations] = useState([]) //just for console data
+    const [allUserConversations, setAllUserConversations] = useState([]) //holds current users conversations
     const [openConversation, setOpenConversation] = useState({}) //fetchConvo gets conversation, set to that convo
     const [conversationId, setConversationId] = useState("") //params to send through fetchConvo (listened for*)
     const [message, setMessage] = useState("") //tracking input change
@@ -46,7 +47,7 @@ const Chat = () => {
     const [isOptionsOpen, setIsOptionsOpen] = useState(false) //this is toggle state for options in chat bubbles
     const [boardList, setBoardList] = useState([]) //this is the group chat window data
     const [allFriends, setAllFriends] = useState([]) //this is the state that will hold each friend the logged in user has
-    const [slideIndex, setSlideIndex] = useState(0)
+    const [slideIndex, setSlideIndex] = useState(0) //tracks the current slide of the users, conversations, and friends list window
 
 
     // ****************************************EMOJI MART*******************************************
@@ -116,6 +117,22 @@ const Chat = () => {
     }, [])
 
     useEffect(() => {
+        const id = user._id
+        axios
+            .get(`http://localhost:8000/api/currentUserConversations/${id}`, {withCredentials: true})
+            .then((res) => {
+                console.log("Logged in user's conversations: ", res.data)
+                setAllUserConversations(res.data)
+            })
+            .catch((err) => {
+                console.log("Something went wrong retrieving user conversations: ", err)
+            })
+    }, [])
+
+    // ****************************************Two Above Get All*******************************************
+    // ! creating and fetching friendships from DB
+    
+    useEffect(() => {
         const id = user._id //user id sent to routes on backend
         axios
             .get(`http://localhost:8000/api/friendsList/${id}`, { withCredentials: true }) //grabbing logged user's friends
@@ -131,11 +148,7 @@ const Chat = () => {
                 console.log("Something went wrong retrieving friends: ", err);
             });
     }, [user._id]);
-
-
-
-    // ****************************************Two Above Get All*******************************************
-
+    
     const friendRequestHandler = (userIds) => {
         axios
             .post('http://localhost:8000/api/friendRequest', { users: userIds }, { withCredentials: true })
@@ -225,7 +238,7 @@ const Chat = () => {
     }, [socket]) //listening for socket value change
     // ****************************************Three Above Work Together**************************************
     //**********************************************Delete Message********************************************
-
+    // ! deletes single messages
     const deleteHandler = (messageFromChat) => {
         if (messageFromChat.sender._id == user._id) {
             const id = messageFromChat._id
@@ -246,7 +259,7 @@ const Chat = () => {
     }
 
     //**********************************************Snap to Bottom********************************************
-
+    // ! snap to most recent message
     useEffect(() => { //snap feature
         if (messages.length > 0) { //if there are messages..
             chatEndRef.current.scrollIntoView({ behavior: 'smooth' }) //perform chat snap (scrollIntoView is a method of the DOM element like classList, querySelector, addEventListner, etc.)
@@ -254,7 +267,7 @@ const Chat = () => {
     }, [messages]) // listen for new messages
 
     //**********************************************Gif Results********************************************
-
+    // ! grabs the gifs to display (either featured or searched)
     useEffect(() => {
         const fetchGiphy = async () => { // a function that actually fetches the gifs from the api
             const { data } = await fetchGifs(0, 20); // fetch the first 20 search results with a zero offset
@@ -266,7 +279,7 @@ const Chat = () => {
 
     //**********************************************Options Tab********************************************
 
-
+    // ! options on chat bubbles
     const optionsHandler = (options) => { //opens the options tab for a specific user*
         setOptions(options._id) //specific user
         setIsOptionsOpen(!isOptionsOpen) //openHandler

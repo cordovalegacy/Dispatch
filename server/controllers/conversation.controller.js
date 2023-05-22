@@ -32,6 +32,17 @@ module.exports = {
         catch(err){
             return res.status(500).json({message: `Something went wrong finding all the conversations: ${err}`})
         }
+    },
+    
+    getAllUsersConversations: async (req, res) => {
+        try{
+            const { currentUser } = req.params.id //logged in user
+            const userConversations = await ConversationModel.find({users: currentUser}).populate('conversations', 'email firstName lastName _id') //finding user in conversation model by users _id
+            return res.status(200).json(userConversations)
+        }
+        catch(err){
+            return res.status(500).json({message: "Had an issue finding user's conversations", err})
+        }
     }
 
 }

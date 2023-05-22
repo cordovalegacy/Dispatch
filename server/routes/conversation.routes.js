@@ -4,4 +4,5 @@ const { authenticate } = require('../config/jwt.config')
 module.exports = (app) => {
     app.post('/api/newConversation', authenticate, ConversationController.createConversation)
     app.get('/api/allConversations', ConversationController.getAllConversations)
+    app.get('/api/currentUserConversations/:id', ConversationController.getAllUsersConversations)
 }
