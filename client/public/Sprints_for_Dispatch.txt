@@ -3,17 +3,17 @@ Sprints for Dispatch:
 Friends:
 
 Backend:
-1. Create a friends model to relate users to users
+1. Create a friends model to relate users to users ----------
 2. Create a friends controller that contains logic on how to:
--add friends to users
+-add friends to users -----------
 -remove friends from users
 3. Create a friends route for each function
 
 Frontend:
-1. Create slide arrow on current friends window in Chat.jsx
-2. onClick of that slide arrow, slide into a All Users window
-3. Add a message bubble react icon for handleCreateConversation
-4. Modify + react icon to add new friends
+1. Create slide arrow on current friends window in Chat.jsx -------
+2. onClick of that slide arrow, slide into a All Users window -----------
+3. Add a message bubble react icon for handleCreateConversation -----------
+4. Modify + react icon to add new friends ------------
 5. On friends list, add a - react icon to remove friends from friends list
 6. On All Users window, add a search bar to find any user by name
 7. Add onClick feature that adds snaps to that user in the list (dummy div?)

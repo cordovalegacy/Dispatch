@@ -10,7 +10,12 @@ const UserList = ({ boardList, setBoardList, handleCreateConversation, friendReq
         //normally when we click on the AddFriend component, it will also invoke the parent div onClick event
         //but since we stop the propogation, it doesn't bubble up to the parent
         friendRequestHandler([user._id, eachUser._id])
-    };
+    }
+
+    const newMessage = (e, eachUser) => {
+        e.stopPropagation()
+        handleCreateConversation([user._id, eachUser._id])
+    }
 
     return (
         <>
@@ -23,11 +28,11 @@ const UserList = ({ boardList, setBoardList, handleCreateConversation, friendReq
                             setBoardList([...boardList, eachUser]);
                         } //makes it so no duplicates are added to group chat board
                     }}
-                    className={`flex relative justify-between items-center hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer`}
+                    className={`flex relative justify-between items-center hover:bg-gray-900 py-1 px-6 rounded-lg cursor-pointer`}
                     onMouseLeave={() => setShowTooltip(false)}
                 >
                     <AddFriend
-                        className="absolute z-10 top-1/4 left-0 text-lg hover:text-gray-200 duration-150 font-extrabold text-blue-500 cursor-pointer"
+                        className="absolute z-10 top-1/4 left-1 text-lg hover:text-gray-200 duration-150 font-extrabold text-blue-500 cursor-pointer"
                         onMouseEnter={() => setShowTooltip(false)}
                         onClick={(event) => handleAddFriendClick(event, eachUser)}
                     />
@@ -40,7 +45,7 @@ const UserList = ({ boardList, setBoardList, handleCreateConversation, friendReq
                     </div>
                     <NewMessage
                         className="absolute right-1 text-lg hover:text-gray-200 duration-150 font-extrabold text-blue-500 cursor-pointer"
-                        onClick={() => handleCreateConversation([user._id, eachUser._id])}
+                        onClick={(e) => newMessage(e, eachUser)}
                         onMouseEnter={() => setShowTooltip(false)}
                     />
                 </div>
