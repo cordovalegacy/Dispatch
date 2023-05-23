@@ -6,6 +6,7 @@ import GIF from '../assets/gif-bg.gif'
 import GroupChat from './GroupChat'
 import FriendList from './FriendList'
 import UserList from './UserList'
+import ConversationList from './ConversationList'
 
 // ! GIPHY GIFS
 import { Grid } from '@giphy/react-components'
@@ -47,7 +48,7 @@ const Chat = () => {
     const [isOptionsOpen, setIsOptionsOpen] = useState(false) //this is toggle state for options in chat bubbles
     const [boardList, setBoardList] = useState([]) //this is the group chat window data
     const [allFriends, setAllFriends] = useState([]) //this is the state that will hold each friend the logged in user has
-    const [slideIndex, setSlideIndex] = useState(0) //tracks the current slide of the users, conversations, and friends list window
+    const [slideIndex, setSlideIndex] = useState(1) //tracks the current slide of the users, conversations, and friends list window
 
 
     // ****************************************EMOJI MART*******************************************
@@ -119,7 +120,7 @@ const Chat = () => {
     useEffect(() => {
         const id = user._id
         axios
-            .get(`http://localhost:8000/api/currentUserConversations/${id}`, {withCredentials: true})
+            .get(`http://localhost:8000/api/currentUserConversations/${id}`, { withCredentials: true })
             .then((res) => {
                 console.log("Logged in user's conversations: ", res.data)
                 setAllUserConversations(res.data)
@@ -127,28 +128,28 @@ const Chat = () => {
             .catch((err) => {
                 console.log("Something went wrong retrieving user conversations: ", err)
             })
-    }, [])
+    }, [user._id, openConversation])
 
     // ****************************************Two Above Get All*******************************************
     // ! creating and fetching friendships from DB
-    
+
     useEffect(() => {
         const id = user._id //user id sent to routes on backend
         axios
             .get(`http://localhost:8000/api/friendsList/${id}`, { withCredentials: true }) //grabbing logged user's friends
             .then((res) => {
-                console.log("All Friends of Logged In User: ", res.data) //all records of logged in user
+                // console.log("All Friends of Logged In User: ", res.data) //all records of logged in user
                 const friendshipsArray = res.data.flatMap((eachFriend) => eachFriend.friendships) //flatMap grabs all objects in each friendship array
-                console.log("Friendship Array: ", friendshipsArray) //SEPARATES all users (flattens) [{loggedUsersInfo}, {friendsInfo}, {loggedUsersInfo}, {anotherFriendsInfo}]
+                // console.log("Friendship Array: ", friendshipsArray) //SEPARATES all users (flattens) [{loggedUsersInfo}, {friendsInfo}, {loggedUsersInfo}, {anotherFriendsInfo}]
                 const filteredFriends = friendshipsArray.filter((friend) => friend._id !== user._id) //filters out {loggedUsersInfo}
-                console.log("filtered friends: ", filteredFriends) //all friendships excluding the loggedUser (see console.log to understand)
+                // console.log("filtered friends: ", filteredFriends) //all friendships excluding the loggedUser (see console.log to understand)
                 setAllFriends(filteredFriends) //accurate friendlist
             })
             .catch((err) => {
                 console.log("Something went wrong retrieving friends: ", err);
             });
-    }, [user._id]);
-    
+    }, [user._id, slideIndex]);
+
     const friendRequestHandler = (userIds) => {
         axios
             .post('http://localhost:8000/api/friendRequest', { users: userIds }, { withCredentials: true })
@@ -471,15 +472,22 @@ const Chat = () => {
             <div>
                 <div className='flex flex-col gap-2 bg-gray-800 rounded-lg px-10 py-4 my-6 h-64 overflow-auto relative'>
                     <div className=" max-h-80 h-80 overflow-auto">
-                        <RightArrow
-                            className='text-blue-500 hover:text-amber-500 absolute top-1/2 right-0'
-                            onClick={() => slideIndex < 1 ? setSlideIndex(prevState => prevState + 1) : null}
-                        />
-                        <LeftArrow
-                            className='text-blue-500 hover:text-amber-500 absolute top-1/2 left-0'
-                            onClick={() => slideIndex > 0 ? setSlideIndex(prevState => prevState - 1) : null}
-                        />
-                        <div className="transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
+                        {slideIndex === 2 ?
+                            null :
+                            <RightArrow
+                                className='cursor-pointer text-blue-500 hover:text-amber-500 absolute top-1/2 right-0'
+                                onClick={() => slideIndex < 2 ? setSlideIndex(prevState => prevState + 1) : null}
+                            />
+                        }
+                        {slideIndex === 0 ?
+                            null :
+                            <LeftArrow
+                                className='cursor-pointer text-blue-500 hover:text-amber-500 absolute top-1/2 left-0'
+                                onClick={() => slideIndex > 0 ? setSlideIndex(prevState => prevState - 1) : null}
+                            />
+                        }
+                        <div className="transition-transform duration-300 ease-in-out"
+                            style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
                             {
                                 slideIndex === 0 ?
                                     <UserList
@@ -495,9 +503,22 @@ const Chat = () => {
                                     : null
                             }
                         </div>
-                        <div className="transition-transform duration-300 ease-in-out" style={{ transform: `translateX(${100 - slideIndex * 100}%)` }}>
+                        <div className="transition-transform duration-300 ease-in-out"
+                            style={{ transform: `translateX(${100 - slideIndex * 100}%)` }}>
                             {
                                 slideIndex === 1 ?
+                                    <ConversationList
+                                        handleCreateConversation={handleCreateConversation}
+                                        allUserConversations={allUserConversations}
+                                        user={user}
+                                    />
+                                    : null
+                            }
+                        </div>
+                        <div className="transition-transform duration-300 ease-in-out"
+                            style={{ transform: `translateX(${100 - slideIndex * 50}%)` }}>
+                            {
+                                slideIndex === 2 ?
                                     <FriendList
                                         boardList={boardList}
                                         setBoardList={setBoardList}

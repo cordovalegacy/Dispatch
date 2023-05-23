@@ -18,11 +18,6 @@ Frontend:
 6. On All Users window, add a search bar to find any user by name
 7. Add onClick feature that adds snaps to that user in the list (dummy div?)
 
-Conversations:
-1. Similar to Friends, add a slide arrow to slide to conversations window
-2. Map those conversations into eachConversation bubbles
-3. Upon clicking those bubbles, open that conversation (should be able to reuse handleCreateConversation) function
-
 Chat:
 1. Add reactions to chat bubbles
 2. Add edit functionality to only logged in user's message

@@ -36,7 +36,7 @@ const UserList = ({ boardList, setBoardList, handleCreateConversation, friendReq
                         onMouseEnter={() => setShowTooltip(false)}
                         onClick={(event) => handleAddFriendClick(event, eachUser)}
                     />
-                    <div className="relative text-left w-full mr-6 px-2 py-1 hover:text-amber-400 text-white">
+                    <div className="relative text-left w-50 mr-6 px-2 py-1 hover:text-amber-400 text-white">
                         <h3
                             onMouseEnter={() => setShowTooltip(true)}
                         >

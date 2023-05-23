@@ -36,8 +36,8 @@ module.exports = {
     
     getAllUsersConversations: async (req, res) => {
         try{
-            const { currentUser } = req.params.id //logged in user
-            const userConversations = await ConversationModel.find({users: currentUser}).populate('conversations', 'email firstName lastName _id') //finding user in conversation model by users _id
+            const currentUser = req.params.id //logged in user
+            const userConversations = await ConversationModel.find({users: currentUser}).populate('users', 'email firstName lastName _id') //finding user in conversation model by users _id
             return res.status(200).json(userConversations)
         }
         catch(err){

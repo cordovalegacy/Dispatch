@@ -5,7 +5,7 @@ const FriendList = ({ boardList, setBoardList, handleCreateConversation, allFrie
     const [showTooltip, setShowTooltip] = useState(false) //group chat indicator
 
     const newMessage = (e, eachUser) => {
-        e.stopPropagation()
+        e.stopPropagation() //stops child to parent bubbling
         handleCreateConversation([user._id, eachUser._id])
     }
 
@@ -24,7 +24,7 @@ const FriendList = ({ boardList, setBoardList, handleCreateConversation, allFrie
                     onMouseLeave={() => setShowTooltip(false)}
                 >
                     <h3
-                    className="hover:text-amber-400 text-white"
+                    className="w-36 hover:text-amber-400 text-white"
                     onMouseEnter={() => setShowTooltip(true)}
                     >
                         {eachUser.firstName} {eachUser.lastName}

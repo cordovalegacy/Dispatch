@@ -12,7 +12,7 @@ const GroupChat = ({ boardList, setBoardList, handleCreateConversation, user }) 
             <h5 className="text-amber-400 font-bold">Start a group chat</h5>
             {boardList?.map((eachUser) => (
                 <div
-                    key={eachUser.id}
+                    key={eachUser._id}
                     className="flex justify-between items-center text-white hover:text-red-500 gap-10 hover:bg-gray-900 py-1 px-5 rounded-lg cursor-pointer"
                 >
                     <h3 onClick={() => removeFromBoard(eachUser)}>
